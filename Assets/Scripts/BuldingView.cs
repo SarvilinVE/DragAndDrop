@@ -5,91 +5,46 @@ namespace DragAndDrop
     {
         [SerializeField] private ConfigurableJoint _configurableJoint;
         [SerializeField] private JointSettings _jointSettings;
+        [SerializeField] private Rigidbody _rigidbody;
         private bool _isSelected = false;
-        private bool _isGrounded = true;
-        private bool _isDefaulted = true;
+        private bool _isGrounded = false;
         private Vector3 _defaultPosition;
+        private Quaternion _defaultRotation;
         public ConfigurableJoint ConfigurableJoint => _configurableJoint;
-        public bool IsSelectable { get => _isSelected; set { _isSelected = value; } }
+        public Rigidbody Rigidbody => _rigidbody;
+        public bool IsSelected { get => _isSelected; set { _isSelected = value; } }
         public bool IsGrounded { get => _isGrounded; set { _isGrounded = value; } }
-        public Vector3 SelectablePosition => transform.position;
+        public Vector3 SelectablePosition { get => transform.position; set => transform.position = value; }
+        public Vector3 SelectableDefaultPosition { get => _defaultPosition; set => _defaultPosition = value; }
+        public Quaternion SelectableRotation { get => transform.rotation; set => transform.rotation = value; }
+        public Quaternion SelectableDefaultRotation{ get => _defaultRotation; set => _defaultRotation = value; }
 
         private void Start()
         {
             _defaultPosition = transform.position;
-        }
-        private void OnCollisionEnter(Collision collision)
-        {
-            if (!_isSelected)
-            {
-                if (!_isGrounded)
-                {
-                    if (collision.transform.tag == "Ground")
-                    {
-                        _isGrounded = true;
-                        _defaultPosition = transform.position;
-                    }
+            _defaultRotation = transform.rotation;
+            _rigidbody.isKinematic = true;
+            _isGrounded = true;
 
-                    if (collision.transform.tag != "Ground" || collision.transform.tag == "Building")
-                        transform.position = _defaultPosition;
-                }
+            _configurableJoint.xMotion = ConfigurableJointMotion.Free;
+            _configurableJoint.yMotion = ConfigurableJointMotion.Limited;
+            _configurableJoint.zMotion = ConfigurableJointMotion.Free;
+        }
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.transform.CompareTag($"Building"))
+            {
+                if (IsSelected)
+                    _isGrounded = false;
             }
         }
-        private void Update()
+        private void OnTriggerExit(Collider other)
         {
-            if (_isSelected)
-                return;
-
-            if (_isGrounded && _isDefaulted)
-                return;
-
-            if (!_isGrounded)
+            if (other.transform.CompareTag($"Building"))
             {
-                JointOff();
+                if (IsSelected)
+                    _isGrounded = true;
             }
-
-            if (_isGrounded && !_isDefaulted)
-            {
-                JointOn();
-            }
-        }
-        private void JointOff()
-        {
-            _configurableJoint.autoConfigureConnectedAnchor = false;
-
-            _configurableJoint.yMotion = ConfigurableJointMotion.Free;
-
-            var anchor = _configurableJoint.connectedAnchor;
-            anchor.y = _jointSettings.ConnectingAnchorY;
-            _configurableJoint.connectedAnchor = anchor;
-
-            var driveY = _configurableJoint.yDrive;
-            driveY.positionSpring = 0.0f;
-            driveY.positionDamper = 0.0f;
-            _configurableJoint.yDrive = driveY;
-
-            _configurableJoint.massScale = 0.0f;
-
-            _isDefaulted = false;
-        }
-        private void JointOn()
-        {
-            _configurableJoint.autoConfigureConnectedAnchor = true;
-
-            _configurableJoint.yMotion = ConfigurableJointMotion.Locked;
-
-            var anchor = _configurableJoint.connectedAnchor;
-            anchor.y = _jointSettings.ConnectingAnchorY;
-            _configurableJoint.connectedAnchor = anchor;
-
-            var driveY = _configurableJoint.yDrive;
-            driveY.positionSpring = _jointSettings.PositionSpringY;
-            driveY.positionDamper = _jointSettings.PositionDamperY;
-            _configurableJoint.yDrive = driveY;
-
-            _configurableJoint.massScale = _jointSettings.MassScale;
-
-            _isDefaulted = true;
         }
     }
 }

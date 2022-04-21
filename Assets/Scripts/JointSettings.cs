@@ -9,6 +9,7 @@ nameof(JointSettings), order = 0)]
         [SerializeField] private float _positionDamperY;
         [SerializeField] private float _connectingAnchorY;
         [SerializeField] private float _massScale;
+        [SerializeField] private ConfigurableJointMotion joint;
 
         public float PositionSpringY => _positionSpringY;
         public float PositionDamperY => _positionDamperY;

@@ -5,43 +5,46 @@ namespace DragAndDrop
     {
         private SelectableObject _selectableObject;
         private JointSettings _jointSettings;
-
-        private JointPointView _jointPointView;
-        private Vector3 _defaultJointPointPosition;
-        private bool _isDefaulted = true;
-        public DragAndDropModel(SelectableObject selectableObject, JointPointView jointPointView, JointSettings jointSettings)
+        public DragAndDropModel(SelectableObject selectableObject, JointSettings jointSettings)
         {
             _selectableObject = selectableObject;
-            _jointPointView = jointPointView;
             _jointSettings = jointSettings;
         }
 
         private void onSelected(ISelectable selectable)
         {
-            selectable.IsSelectable = true;
-            selectable.IsGrounded = false;
-            _isDefaulted = true;
-            selectable.ConfigurableJoint.connectedBody = _jointPointView.GetComponent<Rigidbody>();
+            selectable.IsSelected = true;
+            selectable.Rigidbody.isKinematic = false;
         }
 
-        public void Drag(Vector3 position)
+        public void Drag()
         {
-            var pos = new Vector3(position.x, position.y, position.z);
-            _defaultJointPointPosition = _jointPointView.transform.position;
-            _jointPointView.transform.position = pos;
-
-            _jointPointView.gameObject.SetActive(true);
-
             _selectableObject.OnSelected += onSelected;
             onSelected(_selectableObject.CurrentValue);
         }
         public void Drop()
         {
             _selectableObject.OnSelected -= onSelected;
-            _selectableObject.CurrentValue.IsSelectable = false;
-            _selectableObject.CurrentValue.ConfigurableJoint.connectedBody = null;
-            _jointPointView.transform.position = _defaultJointPointPosition;
-            _jointPointView.gameObject.SetActive(false);
+            if (_selectableObject.CurrentValue.IsGrounded)
+            {
+                _selectableObject.CurrentValue.SelectableDefaultPosition = _selectableObject.CurrentValue.SelectablePosition;
+                _selectableObject.CurrentValue.SelectableDefaultRotation = _selectableObject.CurrentValue.SelectableRotation;
+
+            }
+            else
+            {
+                _selectableObject.CurrentValue.SelectablePosition = _selectableObject.CurrentValue.SelectableDefaultPosition;
+                _selectableObject.CurrentValue.SelectableRotation = _selectableObject.CurrentValue.SelectableDefaultRotation;
+                _selectableObject.CurrentValue.IsGrounded = true;
+            }
+            _selectableObject.CurrentValue.IsSelected = false;
+            StateUpdateJoint(_selectableObject.CurrentValue.ConfigurableJoint);
+        }
+        private void StateUpdateJoint(ConfigurableJoint configurableJoint)
+        {
+            configurableJoint.autoConfigureConnectedAnchor = false;
+            configurableJoint.connectedAnchor = _selectableObject.CurrentValue.SelectablePosition;
+            configurableJoint.autoConfigureConnectedAnchor = true;
         }
     }
 }
