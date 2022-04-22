@@ -12,7 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c58f7a1e208d6d447b8b365021bf9313, type: 3}
   m_Name: JointSettings
   m_EditorClassIdentifier: 
-  _positionSpringY: 100
-  _positionDamperY: 20
   _connectingAnchorY: 1
-  _massScale: 1
+  _xMotion: 2
+  _yMotion: 1
+  _zMotion: 2
+  _spring: 100
+  _limit: 1
+  _positionSpringX: 500
+  _positionDamperX: 10
+  _positionSpringY: 500
+  _positionDamperY: 10
+  _positionSpringZ: 500
+  _positionDamperZ: 10

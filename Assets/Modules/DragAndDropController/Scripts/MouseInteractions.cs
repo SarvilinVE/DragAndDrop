@@ -8,8 +8,7 @@ namespace DragAndDrop
         private DragAndDropModel _dragAndDropModel;
         private GameObject _getTarget;
         public bool IsMouseDragging;
-        private Vector3 _positionOfScreen;
-        private Vector3 _offsetValue;
+        public bool IsScrollWheel;
         private Camera _camera;
         public MouseInteractions(SelectableObject selectableObject, DragAndDropModel dragAndDropModel, Camera camera)
         {
@@ -26,42 +25,24 @@ namespace DragAndDrop
                 if (_getTarget != null)
                 {
                     IsMouseDragging = true;
-                    
-                    //Converting world position to screen position.
-                    //_positionOfScreen = Camera.main.WorldToScreenPoint(_getTarget.transform.position);
-                    //_offsetValue = _getTarget.transform.position - _camera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, _positionOfScreen.z));
                 }
             }
-
-            //Mouse Button Up
             if (Input.GetMouseButtonUp(1))
             {
                 IsMouseDragging = false;
                 _dragAndDropModel.Drop();
             }
 
-            //Is mouse Moving
-            if (IsMouseDragging)
+            if (Input.GetAxis("Mouse ScrollWheel") != 0)
             {
-                //_selectableObject.Move(_camera, 2000.0f);
-                ////tracking mouse position.
-                //var currentScreenSpace = new Vector3(Input.mousePosition.x, Input.mousePosition.y, _positionOfScreen.z);
-
-                ////converting screen position to world position with offset changes.
-                //var currentPosition = _camera.ScreenToWorldPoint(currentScreenSpace) + _offsetValue;
-
-                ////It will update target gameobject's current postion.
-                //_getTarget.transform.position += new Vector3(currentPosition.x, _getTarget.transform.position.y, currentPosition.z);
-                //_getTarget.GetComponent<Rigidbody>().velocity = _getTarget.transform.position;
-                //var curPos = new Vector3(currentPosition.x, _getTarget.transform.position.y, currentPosition.z);
-                //_getTarget.transform.position = Vector3.MoveTowards(_getTarget.transform.position, curPos, 20.0f * Time.deltaTime);
-                //_selectableObject.CurrentValue.Rigidbody.velocity = new Vector3(currentPosition.x, _selectableObject.CurrentValue.Rigidbody.velocity.y, currentPosition.z);
-
+                IsScrollWheel = true;
+            }
+            else
+            {
+                IsScrollWheel = false;
             }
 
         }
-
-        //Method to Return Clicked Object
         GameObject ReturnClickedObject(out RaycastHit hit)
         {
             GameObject target = null;

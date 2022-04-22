@@ -17,7 +17,7 @@ nameof(SelectableObject), order = 0)]
                 OnSelected?.Invoke(value);
             }
         }
-        public void Move(Camera cam, float speed)
+        public void Move(Camera cam)
         {
             if(CurrentValue.IsGrounded)
                 CurrentValue.Rigidbody.isKinematic = true;
@@ -35,9 +35,6 @@ nameof(SelectableObject), order = 0)]
             CurrentValue.Rigidbody.position = pos;
 
             CurrentValue.Rigidbody.MovePosition(CurrentValue.Rigidbody.position - offsetValue * Time.deltaTime);
-
-            if(Input.GetAxis("Mouse ScrollWheel") != 0)
-                Rotation(speed);
         }
         public void Rotation(float speed)
         {

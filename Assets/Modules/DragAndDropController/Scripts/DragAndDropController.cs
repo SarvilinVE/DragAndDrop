@@ -6,6 +6,7 @@ namespace DragAndDrop
         [SerializeField] private SelectableObject _selectableObject;
         [SerializeField] private Camera _camera;
         [SerializeField] private JointSettings _jointSettings;
+        [SerializeField] private float _speedRotationBuilding;
 
         private DragAndDropModel _dragAndDropModel;
         private MouseInteractions _mouseInteractions;
@@ -45,7 +46,14 @@ namespace DragAndDrop
         private void FixedUpdate()
         {
             if (_mouseInteractions.IsMouseDragging)
-                _selectableObject.Move(_camera, 2000.0f);
+            {
+                _selectableObject.Move(_camera);
+
+                if (_mouseInteractions.IsScrollWheel)
+                    _selectableObject.Rotation(_speedRotationBuilding);
+            }
+
+            
         }
     }
 }
